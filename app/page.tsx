@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [waTooltip, setWaTooltip] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -14,6 +14,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Load AOS
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://unpkg.com/aos@2.3.4/dist/aos.css";
@@ -22,12 +23,22 @@ export default function Home() {
     const script = document.createElement("script");
     script.src = "https://unpkg.com/aos@2.3.4/dist/aos.js";
     script.onload = () => {
-      (window as any).AOS.init({
-        duration: 800,
+      (
+        window as Window & {
+          AOS?: {
+            init: (config: {
+              duration: number;
+              easing: string;
+              offset: number;
+              once: boolean;
+            }) => void;
+          };
+        }
+      ).AOS?.init({
+        duration: 750,
         easing: "ease-out-cubic",
-        once: true,
-        offset: 70,
-        delay: 50,
+        offset: 60,
+        once: false,
       });
     };
     document.body.appendChild(script);
@@ -39,606 +50,356 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="overflow-x-hidden bg-white text-[#2A1A1A]">
-      {/* ── Fonts + pseudo helpers + custom animations ── */}
+    <main className="bg-white text-[#2A1A1A] overflow-x-hidden">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
-        .f-play  { font-family: 'Playfair Display', serif; }
+        .f-play { font-family: 'Playfair Display', serif; }
         .f-corm  { font-family: 'Cormorant Garamond', serif; }
         .f-dm    { font-family: 'DM Sans', sans-serif; }
 
-        /* Nav underline */
-        .nav-ul { position: relative; }
-        .nav-ul::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1.5px; background:#C9922A; transition:width .3s; }
-        .nav-ul:hover::after { width:100%; }
+        /* Nav underline hover */
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; bottom:-3px; left:0; width:0; height:1.5px; background:#C9922A; transition:width .3s; }
+        .nav-link:hover::after { width:100%; }
 
-        /* Divider ornament */
-        .divline { display:flex; align-items:center; gap:16px; margin:24px 0; }
-        .divline::before { content:''; flex:1; height:1px; background:linear-gradient(to right,transparent,#C9922A); }
-        .divline::after  { content:''; flex:1; height:1px; background:linear-gradient(to left, transparent,#C9922A); }
-
-        /* Testimonial quote mark */
-        .qcard::before { content:'"'; font-family:'Cormorant Garamond',serif; font-size:5.5rem; color:#C9922A; opacity:.3; position:absolute; top:4px; left:16px; line-height:1; pointer-events:none; }
-
-        /* ── WhatsApp FAB animations ── */
-        @keyframes wa-pulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(37,211,102,.55); }
-          60%      { box-shadow: 0 0 0 14px rgba(37,211,102,0); }
-        }
-        @keyframes wa-ring {
-          0%,100% { transform: rotate(0deg); }
-          10%      { transform: rotate(-12deg); }
-          20%      { transform: rotate(12deg); }
-          30%      { transform: rotate(-8deg); }
-          40%      { transform: rotate(8deg); }
-          50%      { transform: rotate(0deg); }
-        }
-        @keyframes wa-bounce-in {
-          0%   { transform:scale(0) rotate(-180deg); opacity:0; }
-          60%  { transform:scale(1.15) rotate(8deg); opacity:1; }
-          80%  { transform:scale(.93) rotate(-4deg); }
-          100% { transform:scale(1) rotate(0deg); opacity:1; }
-        }
-        .wa-fab {
-          animation: wa-bounce-in .7s cubic-bezier(.34,1.56,.64,1) 1.2s both,
-                     wa-pulse 2.4s ease-in-out 2s infinite;
-        }
-        .wa-fab:hover { transform:scale(1.1); }
-        .wa-fab:hover svg { animation: wa-ring .6s ease; }
-
-        /* Tooltip slide-in */
-        @keyframes tooltip-in {
-          from { opacity:0; transform:translateX(10px); }
-          to   { opacity:1; transform:translateX(0); }
-        }
-        .wa-tooltip { animation: tooltip-in .25s ease forwards; }
-
-        /* ── Extra section animations ── */
-        @keyframes float-y {
-          0%,100% { transform:translateY(0); }
-          50%      { transform:translateY(-14px); }
-        }
-        .float-anim { animation: float-y 5s ease-in-out infinite; }
-
-        @keyframes shimmer {
-          0%   { background-position: -400px 0; }
-          100% { background-position: 400px 0; }
-        }
+        /* Shimmer bar */
         .shimmer-bar {
-          background: linear-gradient(90deg, #C9922A 0%, #E8B84B 40%, #C9922A 100%);
+          background: linear-gradient(90deg, #C9922A 0%, #E8B84B 45%, #C9922A 100%);
           background-size: 400px 100%;
           animation: shimmer 2.8s linear infinite;
         }
+        @keyframes shimmer { 0% { background-position:-400px 0; } 100% { background-position:400px 0; } }
 
-        @keyframes count-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-        .stat-anim { animation: count-up .6s ease forwards; }
+        /* Float */
+        @keyframes float-y { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        .float-anim { animation: float-y 6s ease-in-out infinite; }
 
-        /* Exam card shine on hover */
-        .exam-card { overflow:hidden; }
-        .exam-card::after { content:''; position:absolute; inset:0; background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.07) 50%,transparent 70%); transform:translateX(-100%); transition:transform .5s; }
+        /* Scroll hint */
+        @keyframes scroll-bounce { 0%,100%{transform:translateX(-50%) translateY(0);opacity:.4} 50%{transform:translateX(-50%) translateY(8px);opacity:.75} }
+        .scroll-hint { animation: scroll-bounce 1.7s ease-in-out infinite; }
+
+        /* WA FAB */
+        @keyframes wa-bounce { 0%{transform:scale(0) rotate(-180deg);opacity:0} 60%{transform:scale(1.15) rotate(8deg);opacity:1} 80%{transform:scale(.93) rotate(-4deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+        @keyframes wa-pulse  { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.55)} 60%{box-shadow:0 0 0 14px rgba(37,211,102,0)} }
+        @keyframes wa-ring   { 0%,100%{transform:rotate(0)} 15%{transform:rotate(-12deg)} 30%{transform:rotate(12deg)} 45%{transform:rotate(-6deg)} 60%{transform:rotate(0)} }
+        .wa-fab { animation: wa-bounce .7s cubic-bezier(.34,1.56,.64,1) 1.2s both, wa-pulse 2.4s ease-in-out 2s infinite; transition:transform .2s; }
+        .wa-fab:hover { transform:scale(1.1); }
+        .wa-fab:hover svg { animation: wa-ring .65s ease; }
+        .wa-wrap:hover .wa-tip { opacity:1; transform:translateX(0); }
+
+        /* Vision card corners */
+        .vision-card { position:relative; }
+        .vision-card::before { content:''; position:absolute; top:0; right:0; width:90px; height:90px; border-bottom:1px solid rgba(201,146,42,.3); border-left:1px solid rgba(201,146,42,.3); }
+        .vision-card::after  { content:''; position:absolute; bottom:0; left:0; width:64px; height:64px; border-top:1px solid rgba(201,146,42,.2); border-right:1px solid rgba(201,146,42,.2); }
+
+        /* Exam card shine */
+        .exam-card { overflow:hidden; position:relative; }
+        .exam-card::after { content:''; position:absolute; inset:0; background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.07) 50%,transparent 65%); transform:translateX(-100%); transition:transform .55s; pointer-events:none; }
         .exam-card:hover::after { transform:translateX(100%); }
 
-        /* Problem card left glow */
-        .prob-card { transition: border-color .3s, transform .3s, box-shadow .3s; }
-        .prob-card:hover { box-shadow: -4px 0 16px rgba(201,146,42,.25); }
+        /* Prob card */
+        .prob-card { transition:border-color .3s,transform .3s,box-shadow .3s; }
+        .prob-card:hover { box-shadow:-4px 0 18px rgba(201,146,42,.22); transform:translateX(4px); border-color:#6B1A1A; }
 
-        /* Scroll indicator */
-        @keyframes scroll-hint {
-          0%,100% { transform:translateY(0); opacity:.7; }
-          50%      { transform:translateY(8px); opacity:1; }
-        }
-        .scroll-hint { animation: scroll-hint 1.6s ease-in-out infinite; }
+        /* Sol row */
+        .sol-row { transition:background .2s; }
+        .sol-row:hover { background:#FDFAF6; }
+        .sol-icon { transition:transform .25s; }
+        .sol-row:hover .sol-icon { transform:scale(1.18); }
+
+        /* Testimonial */
+        .t-card::before { content:'\\201C'; font-family:'Cormorant Garamond',serif; font-size:6rem; color:#C9922A; opacity:.22; position:absolute; top:0; left:14px; line-height:1; pointer-events:none; }
+
+        /* Footer link bullet */
+        .ft-link { display:flex; align-items:center; gap:8px; }
+        .ft-link::before { content:''; width:4px; height:4px; border-radius:50%; background:#C9922A; opacity:.6; flex-shrink:0; transition:opacity .2s; }
+        .ft-link:hover::before { opacity:1; }
+
+        .letter-rule { border:none; border-top:1.5px solid #C9922A; opacity:.35; }
       `}</style>
 
-      {/* ══════════════════════════════════
-          WHATSAPP FAB
-      ══════════════════════════════════ */}
-      <div className="fixed bottom-7 right-7 z-[300]">
-        {/* Tooltip */}
-        {waTooltip && (
-          <div className="wa-tooltip pointer-events-none absolute right-0 bottom-full mb-3 rounded bg-white text-[#2A1A1A] text-sm f-dm font-medium px-4 py-2 shadow-xl border border-gray-100 whitespace-nowrap">
-            Chat with us on WhatsApp
-          </div>
-        )}
+      {/* ── WhatsApp FAB ── */}
+      <div className="wa-wrap fixed bottom-7 right-7 z-[300] flex flex-col items-end gap-2">
+        <div className="wa-tip opacity-0 pointer-events-none translate-x-2 transition-all duration-300 bg-white text-[#2A1A1A] text-sm f-dm font-medium px-4 py-2 rounded shadow-xl border border-gray-100 whitespace-nowrap">
+          Chat with us on WhatsApp
+        </div>
         <a
           href="https://wa.me/918860615795?text=Hello%20I%20want%20to%20know%20more%20about%20your%20services"
-          target="_blank"
-          rel="noopener noreferrer"
-          onMouseEnter={() => setWaTooltip(true)}
-          onMouseLeave={() => setWaTooltip(false)}
-          className="wa-fab w-[58px] h-[58px] rounded-full bg-[#25D366] flex items-center justify-center shadow-2xl cursor-pointer"
-          aria-label="Chat on WhatsApp"
+          target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
+          className="wa-fab w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-2xl"
         >
-          {/* WhatsApp SVG */}
-          <svg
-            viewBox="0 0 32 32"
-            width="30"
-            height="30"
-            fill="white"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M16.002 2.667C8.638 2.667 2.667 8.637 2.667 16c0 2.358.63 4.666 1.826 6.684L2.667 29.333l6.84-1.794A13.282 13.282 0 0016.002 29.333c7.364 0 13.331-5.97 13.331-13.333 0-7.363-5.967-13.333-13.331-13.333zm0 24.267a11.004 11.004 0 01-5.608-1.535l-.402-.24-4.061 1.065 1.082-3.952-.262-.415A10.964 10.964 0 015.002 16c0-6.065 4.935-11 11-11s11 4.935 11 11-4.935 11-11 11zm6.04-8.224c-.33-.165-1.953-.963-2.257-1.073-.304-.11-.524-.165-.745.165-.22.33-.854 1.073-1.046 1.293-.192.22-.385.247-.715.082-.33-.165-1.393-.513-2.654-1.638-.98-.875-1.642-1.956-1.834-2.286-.192-.33-.02-.508.145-.672.148-.147.33-.385.494-.577.165-.192.22-.33.33-.55.11-.22.055-.412-.027-.577-.083-.165-.745-1.797-1.02-2.46-.27-.647-.545-.56-.745-.57-.192-.01-.412-.012-.633-.012-.22 0-.577.082-.879.412-.302.33-1.155 1.128-1.155 2.75s1.183 3.19 1.348 3.41c.165.22 2.327 3.554 5.638 4.985.788.34 1.403.544 1.882.696.791.252 1.51.216 2.079.131.634-.094 1.953-.799 2.228-1.57.275-.77.275-1.43.192-1.569-.082-.137-.302-.22-.632-.385z" />
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="white">
+            <path d="M16.002 2.667C8.638 2.667 2.667 8.637 2.667 16c0 2.358.63 4.666 1.826 6.684L2.667 29.333l6.84-1.794A13.282 13.282 0 0016.002 29.333c7.364 0 13.331-5.97 13.331-13.333 0-7.363-5.967-13.333-13.331-13.333zm0 24.267a11.004 11.004 0 01-5.608-1.535l-.402-.24-4.061 1.065 1.082-3.952-.262-.415A10.964 10.964 0 015.002 16c0-6.065 4.935-11 11-11s11 4.935 11 11-4.935 11-11 11zm6.04-8.224c-.33-.165-1.953-.963-2.257-1.073-.304-.11-.524-.165-.745.165-.22.33-.854 1.073-1.046 1.293-.192.22-.385.247-.715.082-.33-.165-1.393-.513-2.654-1.638-.98-.875-1.642-1.956-1.834-2.286-.192-.33-.02-.508.145-.672.148-.147.33-.385.494-.577.165-.192.22-.33.33-.55.11-.22.055-.412-.027-.577-.083-.165-.745-1.797-1.02-2.46-.27-.647-.545-.56-.745-.57-.192-.01-.412-.012-.633-.012-.22 0-.577.082-.879.412-.302.33-1.155 1.128-1.155 2.75s1.183 3.19 1.348 3.41c.165.22 2.327 3.554 5.638 4.985.788.34 1.403.544 1.882.696.791.252 1.51.216 2.079.131.634-.094 1.953-.799 2.228-1.57.275-.77.275-1.43.192-1.569-.082-.137-.302-.22-.632-.385z"/>
           </svg>
         </a>
       </div>
 
-      {/* ══════════════════════════════════
-          NAVBAR
-      ══════════════════════════════════ */}
-      <nav
-        className={`fixed top-4  rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.25)] left-5 right-5 inset-x-0 z-50 h-[72px] flex items-center justify-between px-6 md:px-10 transition-all duration-300 border-b ${scrolled ? "bg-white shadow-sm border-[#f0e0d0]" : "bg-white border-[#f5ede6]"}`}
-      >
-        <div className="flex items-center gap-3">
-          <span className="f-play font-black text-[24px] text-[#4A0E0E] tracking-tight">
-            DEZINE
-          </span>
-          <span className="w-px h-5 bg-[#C9922A] opacity-60" />
-          <span className="f-corm text-[18px] text-[#C9922A] font-semibold tracking-[.15em]">
-            Acharya
-          </span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-10">
-          {["About", "Exams", "Approach", "Community"].map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="nav-ul f-dm text-[14px] font-medium tracking-[.12em] uppercase text-[#6B1A1A] hover:text-[#C9922A] transition-colors duration-300 no-underline"
-            >
-              {item}
-            </a>
+      {/* ── Navbar ── */}
+      <nav className={`fixed top-3 left-4 right-4 z-50 h-[68px] flex items-center justify-between px-6 md:px-10 bg-white/95 backdrop-blur-md  border-[#f0e0d0] rounded-xl transition-all duration-300 ${scrolled ? "shadow-lg " : "shadow-[0_4px_20px_rgba(0,0,0,0.25)]"}`}>
+        <a href="#hero">
+          <Image src="/logo-new.webp" alt="Dezine Acharya" width={90} height={44} className=" w-auto object-contain" priority/>
+        </a>
+        <div className="hidden lg:flex items-center gap-9">
+          {[["#about","About"],["#exams","Exams"],["#mentor","Mentor"],["#parents","For Parents"],["#community","Community"]].map(([href,label])=>(
+            <a key={href} href={href} className="nav-link f-dm text-[13px] font-medium tracking-[.14em] uppercase text-[#6B1A1A] hover:text-[#C9922A] transition-colors duration-200 no-underline">{label}</a>
           ))}
-          <a
-            href="#contact"
-            className="f-dm text-[.82rem] font-medium tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-6 py-2.5 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 no-underline"
-          >
-            Enroll Now
-          </a>
+          <a href="#contact" className="f-dm text-[.75rem] tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-6 py-2.5 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300 no-underline">Enroll Now</a>
         </div>
-
-        <button
-          onClick={() => setMenuOpen(true)}
-          className="md:hidden flex flex-col gap-[5px] bg-transparent border-0 cursor-pointer p-1"
-        >
-          {[0, 1, 2].map((i) => (
-            <span key={i} className="block w-6 h-0.5 bg-[#6B1A1A]" />
-          ))}
+        <button onClick={()=>setMenuOpen(true)} className="lg:hidden flex flex-col gap-[5px] bg-transparent border-0 cursor-pointer p-1" aria-label="Menu">
+          {[0,1,2].map(i=><span key={i} className="block w-6 h-0.5 bg-[#6B1A1A]"/>)}
         </button>
       </nav>
 
       {/* Mobile menu */}
-      <div
-        className={`fixed inset-0 z-[200] bg-white flex-col items-center justify-center gap-8 px-10 ${menuOpen ? "flex" : "hidden"}`}
-      >
-        <button
-          onClick={() => setMenuOpen(false)}
-          className="absolute top-6 right-6 bg-transparent border-0 text-2xl text-[#6B1A1A] cursor-pointer"
-        >
-          ✕
-        </button>
-        {["About", "Exams", "Approach", "Community"].map((item) => (
-          <a
-            key={item}
-            href={`#${item.toLowerCase()}`}
-            onClick={() => setMenuOpen(false)}
-            className="f-dm text-xl font-medium tracking-[.12em] uppercase text-[#6B1A1A] no-underline"
-          >
-            {item}
-          </a>
+      <div className={`fixed inset-0 z-[200] bg-white flex-col items-center justify-center gap-8 px-10 ${menuOpen?"flex":"hidden"}`}>
+        <button onClick={()=>setMenuOpen(false)} className="absolute top-5 right-6 bg-transparent border-0 text-2xl text-[#6B1A1A] cursor-pointer">✕</button>
+        {[["#about","About"],["#exams","Exams"],["#mentor","Mentor"],["#parents","For Parents"],["#community","Community"]].map(([href,label])=>(
+          <a key={href} href={href} onClick={()=>setMenuOpen(false)} className="f-dm text-xl tracking-[.12em] uppercase text-[#6B1A1A] no-underline">{label}</a>
         ))}
-        <a
-          href="#contact"
-          onClick={() => setMenuOpen(false)}
-          className="f-dm text-[.85rem] font-medium tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-8 py-3 no-underline"
-        >
-          Enroll Now
-        </a>
+        <a href="#contact" onClick={()=>setMenuOpen(false)} className="f-dm text-[.85rem] tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-10 py-3 no-underline">Enroll Now</a>
       </div>
 
-      {/* ══════════════════════════════════
-          HERO
-      ══════════════════════════════════ */}
-      <section className="min-h-screen flex items-center pt-[72px] relative overflow-hidden bg-gradient-to-br from-white via-white to-[#FDF6EC]">
-        {/* Decorative bg */}
-        <div className="absolute right-[-8%] top-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-[#FDF6EC] opacity-70 pointer-events-none float-anim" />
-        <div className="absolute right-[8%] top-[15%] w-px h-[70%] bg-gradient-to-b from-transparent via-[#C9922A] to-transparent opacity-20 pointer-events-none" />
-        <div
-          className="absolute left-[4%] bottom-[12%] w-24 h-24 border border-[#C9922A]/20 rotate-45 pointer-events-none"
-          data-aos="fade-in"
-          data-aos-delay="600"
-        />
-        <div
-          className="absolute left-[6%] bottom-[18%] w-12 h-12 border border-[#C9922A]/15 rotate-45 pointer-events-none"
-          data-aos="fade-in"
-          data-aos-delay="800"
-        />
+      {/* ══════════ HERO ══════════ */}
+      <section id="hero" className="min-h-screen flex items-center pt-[72px] relative overflow-hidden bg-gradient-to-br from-white via-white to-[#FDF6EC]">
+        {/* Decorative */}
+        <div className="absolute right-[-6%] top-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full bg-[#FDF6EC] opacity-70 pointer-events-none float-anim"/>
+        <div className="absolute right-[10%] top-[12%] w-px h-[70%] bg-gradient-to-b from-transparent via-[#C9922A] to-transparent opacity-15 pointer-events-none"/>
+        <div className="absolute left-[4%] bottom-[14%] w-24 h-24 border border-[#C9922A]/20 rotate-45 pointer-events-none" data-aos="fade-in" data-aos-delay="700"/>
+        <div className="absolute left-[6%] bottom-[20%] w-12 h-12 border border-[#C9922A]/15 rotate-45 pointer-events-none" data-aos="fade-in" data-aos-delay="900"/>
 
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-20 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center w-full">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-20 grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-center w-full relative z-10">
           {/* Left */}
-          <div data-aos="fade-right" data-aos-delay="100">
-            <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#C9922A] font-medium mb-5">
-              Design Education · Redefined
+          <div>
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-5" data-aos="fade-right" data-aos-delay="100">Design Education · Redefined</p>
+            <h1 className="f-play font-black text-5xl md:text-[4rem] leading-[1.08] text-[#4A0E0E]" data-aos="fade-right" data-aos-delay="180">Where Design</h1>
+            <h1 className="f-corm font-light italic text-5xl md:text-[4rem] leading-[1.08] text-[#C9922A] my-1" data-aos="fade-right" data-aos-delay="220">is Discovered,</h1>
+            <h1 className="f-play font-black text-5xl md:text-[4rem] leading-[1.08] text-[#4A0E0E] mb-7" data-aos="fade-right" data-aos-delay="260">Not Drilled.</h1>
+            <div className="shimmer-bar h-[3px] w-20 rounded-full mb-8" data-aos="fade-right" data-aos-delay="320"/>
+            <p className="f-dm text-[.97rem] leading-relaxed text-[#8A6A5A] font-light max-w-[440px] mb-10" data-aos="fade-up" data-aos-delay="360">
+              Mentoring aspirants for{" "}<strong className="text-[#6B1A1A] font-semibold">NID, NIFT, UCEED &amp; NATA</strong>{" "}through creative intuition, structured guidance, and reflective mentorship — transforming exam pressure into a meaningful design journey.
             </p>
-            <h1 className="f-play font-black text-5xl md:text-[4rem] leading-[1.1] text-[#4A0E0E]">
-              Where Design
-            </h1>
-            <h1 className="f-corm font-light italic text-5xl md:text-[4rem] leading-[1.1] text-[#C9922A] my-1">
-              is Discovered,
-            </h1>
-            <h1 className="f-play font-black text-5xl md:text-[4rem] leading-[1.1] text-[#4A0E0E] mb-8">
-              Not Drilled.
-            </h1>
-
-            {/* Shimmer accent bar */}
-            <div
-              className="shimmer-bar h-[3px] w-24 mb-8 rounded-full"
-              data-aos="fade-right"
-              data-aos-delay="300"
-            />
-
-            <p className="f-dm text-[1rem] leading-relaxed text-[#8A6A5A] font-light max-w-[440px] mb-10">
-              Mentoring aspirants for{" "}
-              <strong className="text-[#6B1A1A] font-semibold">
-                NID, NIFT & UCEED
-              </strong>{" "}
-              through creative intuition, structured guidance, and reflective
-              mentorship — transforming exam pressure into a meaningful design
-              journey.
-            </p>
-
-            <div
-              className="flex gap-4 flex-wrap"
-              data-aos="fade-up"
-              data-aos-delay="350"
-            >
-              <a
-                href="#contact"
-                className="f-dm text-[.85rem] font-medium tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-9 py-4 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 no-underline"
-              >
-                Begin Your Journey
-              </a>
-              <a
-                href="#approach"
-                className="f-dm text-[.85rem] font-medium tracking-[.15em] uppercase border border-[#6B1A1A] text-[#6B1A1A] px-9 py-4 hover:bg-[#6B1A1A] hover:text-white transition-all duration-300 no-underline"
-              >
-                Our Approach
-              </a>
+            <div className="flex gap-4 flex-wrap mb-12" data-aos="fade-up" data-aos-delay="420">
+              <a href="#contact" className="f-dm text-[.8rem] tracking-[.16em] uppercase bg-[#6B1A1A] text-white px-9 py-4 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 no-underline">Begin Your Journey</a>
+              <a href="#approach" className="f-dm text-[.8rem] tracking-[.16em] uppercase border border-[#6B1A1A] text-[#6B1A1A] px-9 py-4 hover:bg-[#6B1A1A] hover:text-white transition-all duration-300 no-underline">Our Approach</a>
             </div>
-
-            {/* Stats */}
-            <div
-              className="mt-12 flex gap-10 flex-wrap"
-              data-aos="fade-up"
-              data-aos-delay="450"
-            >
-              {[
-                { num: "1L+", label: "Aspirants Goal" },
-                { num: "3", label: "Design Exams" },
-                { num: "∞", label: "Creative Potential" },
-              ].map((s, i) => (
-                <div
-                  key={s.label}
-                  className="stat-anim"
-                  style={{ animationDelay: `${i * 120}ms` }}
-                >
-                  <div className="f-corm font-bold text-[3.6rem] text-[#6B1A1A] leading-none">
-                    {s.num}
-                  </div>
-                  <div className="f-dm text-[.75rem] tracking-[.15em] uppercase text-[#8A6A5A] mt-1">
-                    {s.label}
-                  </div>
+            <div className="flex gap-10 flex-wrap" data-aos="fade-up" data-aos-delay="500">
+              {[["1L+","Aspirants Goal"],["4","Design Exams"],["12+","Years Experience"]].map(([num,lbl])=>(
+                <div key={lbl}>
+                  <div className=" font-bold text-[3.6rem] text-[#6B1A1A] leading-none">{num}</div>
+                  <div className=" text-[.7rem] tracking-[.18em] uppercase text-[#8A6A5A] mt-1">{lbl}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right — vision card */}
-          <div data-aos="fade-left" data-aos-delay="250" className="relative">
-            <div className="bg-gradient-to-br from-[#6B1A1A] to-[#4A0E0E] p-11 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-28 h-28 border-b border-l border-[#C9922A]/30" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 border-t border-r border-[#C9922A]/20" />
-              <p className="f-dm text-[.68rem] tracking-[.3em] uppercase text-[#C9922A] opacity-80 mb-6">
-                Our Vision
-              </p>
-              <p className="f-corm font-light italic text-[1.6rem] leading-relaxed text-white mb-8">
-                "To democratize design education in India — making meaningful
-                mentorship accessible, inspiring, and free from commercial
-                exploitation."
-              </p>
-              <div className="border-t border-[#C9922A]/30 pt-6 flex gap-3 flex-wrap">
-                {["NID", "NIFT", "UCEED"].map((e) => (
-                  <span
-                    key={e}
-                    className="f-dm text-[.78rem] tracking-[.2em] border border-[#C9922A]/50 text-[#E8B84B] px-4 py-1.5"
-                  >
-                    {e}
-                  </span>
+          {/* Right: Vision card */}
+          <div className="relative" data-aos="fade-left" data-aos-delay="250">
+            <div className="vision-card bg-gradient-to-br from-[#6B1A1A] to-[#4A0E0E] p-11 overflow-hidden">
+              <p className="f-dm text-[.68rem] tracking-[.3em] uppercase text-[#C9922A] opacity-80 mb-6">Our Vision</p>
+              <blockquote className="f-corm font-light italic text-[1.55rem] leading-relaxed text-white/90 mb-8">
+                &ldquo;To democratize design education in India — making meaningful mentorship accessible, inspiring, and free from commercial exploitation.&rdquo;
+              </blockquote>
+              <div className="border-t border-[#C9922A]/25 pt-6 flex gap-3 flex-wrap">
+                {["NID","NIFT","UCEED","NATA"].map(e=>(
+                  <span key={e} className="f-dm text-[.75rem] tracking-[.18em] uppercase border border-[#C9922A]/50 text-[#E8B84B] px-4 py-1.5">{e}</span>
                 ))}
               </div>
             </div>
-            <div className="absolute inset-0 bg-[#C9922A] translate-x-2.5 translate-y-2.5 -z-10 opacity-15" />
+            <div className="absolute inset-0 bg-[#C9922A] translate-x-3 translate-y-3 -z-10 opacity-15"/>
           </div>
         </div>
 
         {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 scroll-hint">
-          <div className="f-dm text-[.65rem] tracking-[.25em] uppercase text-[#6B1A1A]">
-            Scroll
-          </div>
-          <div className="w-px h-10 bg-gradient-to-b from-[#6B1A1A] to-transparent" />
+        <div className="scroll-hint absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <span className="f-dm text-[.62rem] tracking-[.28em] uppercase text-[#6B1A1A] opacity-50">Scroll</span>
+          <div className="w-px h-9 bg-gradient-to-b from-[#6B1A1A] to-transparent opacity-40"/>
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          EXAMS
-      ══════════════════════════════════ */}
-      <section id="exams" className="bg-[#FDF6EC] py-24 px-6 md:px-10">
-        <div className="max-w-[1200px] mx-auto">
-          <div data-aos="fade-up" className="text-center mb-16">
-            <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#C9922A] font-medium mb-4">
-              Entrance Exams
-            </p>
-            <h2 className="f-play font-bold text-4xl md:text-5xl text-[#4A0E0E] mb-5">
-              We Prepare You For
-            </h2>
-            <p className="f-dm text-[1rem] text-[#8A6A5A] font-light max-w-md mx-auto leading-relaxed">
-              India's most prestigious design entrance examinations — approached
-              not as a test, but as a creative milestone.
-            </p>
+      {/* ══════════ MENTOR ══════════ */}
+      <section id="mentor" className="py-24 px-6 md:px-10 bg-white">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-center">
+          <div className="relative flex justify-center" data-aos="fade-right" data-aos-duration="900">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[68%] bg-[#FDF6EC] rounded"/>
+            <Image src="/avatar.png" alt="Amit Singh – Founder" width={360} height={500} className="relative z-10 w-full max-w-[340px] drop-shadow-2xl float-anim" priority/>
           </div>
+          <div data-aos="fade-left" data-aos-delay="150" data-aos-duration="900">
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">Meet Your Mentor</p>
+            <h2 className="f-play font-bold text-3xl md:text-[2.8rem] text-[#4A0E0E] mb-3 leading-tight">
+              The Modern <em className="italic text-[#C9922A]">Dronacharya</em><br/>for Design Thinkers
+            </h2>
+            <p className="f-corm italic text-[1.4rem] text-[#C9922A] mb-7">Amit Singh — Founder &amp; Lead Mentor</p>
+            <p className="f-dm text-[.95rem] leading-[1.9] text-[#8A6A5A] font-light mb-4">
+              An alumnus of the <strong className="text-[#6B1A1A] font-semibold">National Institute of Design (NID)</strong>, Amit brings over{" "}<strong className="text-[#6B1A1A] font-semibold">12+ years</strong> of teaching and mentoring design aspirants. His philosophy-driven approach transforms the way students perceive creativity.
+            </p>
+            <p className="f-dm text-[.95rem] leading-[1.9] text-[#8A6A5A] font-light mb-8">
+              At Dezine Acharya, Amit has built more than a coaching brand — it&apos;s a{" "}<strong className="text-[#6B1A1A] font-semibold">design movement</strong> where creativity, purpose, and mentorship converge.
+            </p>
+            <div className="flex gap-2 flex-wrap mb-8">
+              {["NID Alumnus","12+ Yrs Mentoring","Philosophy-Driven"].map(t=>(
+                <span key={t} className="f-dm text-[.72rem] tracking-[.12em] uppercase bg-[#FDF6EC] text-[#6B1A1A] border border-[#C9922A]/35 px-4 py-2">{t}</span>
+              ))}
+            </div>
+            <div className="border-l-[3px] border-[#C9922A] bg-[#FDF6EC] px-6 py-5 space-y-2">
+              <p className="f-dm text-[.9rem] text-[#2A1A1A]">📍 <strong>Dwarka Centre, Delhi</strong> — Plot No. 101, First Floor Above Levi&apos;s Showroom, Sector 7, Dwarka - 110777</p>
+              <p className="f-dm text-[.9rem] text-[#2A1A1A]">
+                📞 <a href="tel:+918860615795" className="text-[#6B1A1A] font-semibold hover:underline">8860615795</a>
+                {" · "}✉️ <a href="mailto:info@dezineacharya.com" className="text-[#6B1A1A] font-semibold hover:underline">info@dezineacharya.com</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0.5">
+      {/* ══════════ EXAMS ══════════ */}
+      <section id="exams" className="py-24 px-6 md:px-10 bg-[#FDF6EC]">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-16" data-aos="fade-up">
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">Entrance Exams</p>
+            <h2 className="f-play font-bold text-4xl md:text-5xl text-[#4A0E0E] mb-5">We Prepare You For</h2>
+            <p className="f-dm text-[.97rem] text-[#8A6A5A] font-light max-w-md mx-auto leading-relaxed">India&apos;s most prestigious design &amp; architecture entrance examinations — approached not as a test, but as a creative milestone.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-0.5">
             {[
-              {
-                code: "NID",
-                full: "National Institute of Design",
-                desc: "India's premier design institution. NID entrance demands creative originality, design thinking and spatial reasoning.",
-                icon: "◈",
-                featured: false,
-              },
-              {
-                code: "NIFT",
-                full: "National Institute of Fashion Technology",
-                desc: "Fashion, textiles and design — NIFT CAT tests visual sensitivity, creative aptitude and situational judgment.",
-                icon: "◇",
-                featured: true,
-              },
-              {
-                code: "UCEED",
-                full: "Undergraduate Common Entrance Exam for Design",
-                desc: "IIT design programs. UCEED evaluates visualization, environment and social awareness, and analytical reasoning.",
-                icon: "◉",
-                featured: false,
-              },
-            ].map((exam, i) => (
+              { code:"NID",  full:"National Institute of Design",                         icon:"◈", desc:"India's premier design institution. NID demands creative originality, design thinking and spatial reasoning.", featured:false },
+              { code:"NIFT", full:"National Institute of Fashion Technology",              icon:"◇", desc:"Fashion, textiles and design — NIFT CAT tests visual sensitivity, creative aptitude and situational judgment.", featured:true  },
+              { code:"UCEED",full:"Undergraduate Common Entrance Exam for Design",         icon:"◉", desc:"IIT design programs. UCEED evaluates visualization, environment & social awareness, and analytical reasoning.", featured:false },
+              { code:"NATA", full:"National Aptitude Test in Architecture",                icon:"◐", desc:"Gateway to top architecture colleges. NATA assesses drawing ability, aesthetic sensitivity, and critical thinking.", featured:false },
+            ].map((exam,i)=>(
               <div
                 key={exam.code}
                 data-aos="fade-up"
-                data-aos-delay={i * 120}
-                className={`exam-card group relative p-11 transition-all duration-300 cursor-default ${exam.featured ? "bg-[#6B1A1A]" : "bg-white hover:bg-[#4A0E0E]"}`}
+                data-aos-delay={i*100}
+                className={`exam-card group p-10 cursor-default transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${exam.featured ? "bg-[#6B1A1A]" : "bg-white hover:bg-[#4A0E0E]"}`}
               >
-                <div
-                  className={`f-corm text-[2.5rem] mb-4 opacity-60 transition-colors duration-300 ${exam.featured ? "text-[#E8B84B]" : "text-[#C9922A] group-hover:text-[#E8B84B]"}`}
-                >
-                  {exam.icon}
-                </div>
-                <div
-                  className={`f-play font-bold text-[2rem] mb-2 transition-colors duration-300 ${exam.featured ? "text-[#E8B84B]" : "text-[#6B1A1A] group-hover:text-[#E8B84B]"}`}
-                >
-                  {exam.code}
-                </div>
-                <div
-                  className={`f-dm text-[.75rem] tracking-[.1em] uppercase mb-5 transition-colors duration-300 ${exam.featured ? "text-white/60" : "text-[#8A6A5A] group-hover:text-white/60"}`}
-                >
-                  {exam.full}
-                </div>
-                <p
-                  className={`f-dm text-[.92rem] leading-relaxed font-light transition-colors duration-300 ${exam.featured ? "text-white/85" : "text-[#8A6A5A] group-hover:text-white/80"}`}
-                >
-                  {exam.desc}
-                </p>
+                <div className={`f-corm text-[2.2rem] mb-5 transition-all duration-300 ${exam.featured ? "text-[#E8B84B]" : "text-[#C9922A] opacity-60 group-hover:opacity-100 group-hover:text-[#E8B84B]"}`}>{exam.icon}</div>
+                <div className={`f-play font-bold text-[1.9rem] mb-2 transition-colors duration-300 ${exam.featured ? "text-[#E8B84B]" : "text-[#6B1A1A] group-hover:text-[#E8B84B]"}`}>{exam.code}</div>
+                <div className={`f-dm text-[.68rem] tracking-[.1em] uppercase mb-5 transition-colors duration-300 ${exam.featured ? "text-white/55" : "text-[#8A6A5A] group-hover:text-white/55"}`}>{exam.full}</div>
+                <p className={`f-dm text-[.9rem] leading-relaxed font-light transition-colors duration-300 ${exam.featured ? "text-white/82" : "text-[#8A6A5A] group-hover:text-white/80"}`}>{exam.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          PROBLEM + SOLUTION
-      ══════════════════════════════════ */}
+      {/* ══════════ ABOUT ══════════ */}
       <section id="about" className="py-24 px-6 md:px-10 bg-white">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20">
           {/* Problems */}
-          <div data-aos="fade-right">
-            <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#C9922A] font-medium mb-4">
-              The Challenge
-            </p>
-            <h2 className="f-play font-bold text-3xl md:text-[2.5rem] text-[#4A0E0E] mb-9">
-              What's Broken in Design Coaching
-            </h2>
-            <div className="flex flex-col gap-4">
+          <div data-aos="fade-right" data-aos-duration="800">
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">The Challenge</p>
+            <h2 className="f-play font-bold text-3xl md:text-[2.5rem] text-[#4A0E0E] mb-9">What&apos;s Broken in Design Coaching</h2>
+            <div className="space-y-4">
               {[
                 "Coaching factories dominate — high fees, minimal mentorship.",
                 "Students imitate instead of creating original work.",
                 "Real design thinking exposure is completely missing.",
-                `Emotional and career guidance is absent — reduced to "draw and score."`,
-              ].map((problem, i) => (
-                <div
-                  key={i}
-                  data-aos="fade-right"
-                  data-aos-delay={i * 100}
-                  className="prob-card border-l-[3px] border-[#C9922A] pl-6 py-5 bg-[#FDF6EC] hover:border-[#6B1A1A] hover:translate-x-1"
-                >
-                  <div className="flex gap-3 items-start">
-                    <span className="f-corm text-[#C9922A] text-xl shrink-0 mt-0.5">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="f-dm text-[.93rem] leading-relaxed text-[#2A1A1A] font-light">
-                      {problem}
-                    </p>
-                  </div>
+                `Emotional and career guidance is absent — reduced to \"draw and score.\"`,
+              ].map((p,i)=>(
+                <div key={i} data-aos="fade-right" data-aos-delay={i*80} className="prob-card border-l-[3px] border-[#C9922A] bg-[#FDF6EC] pl-6 py-5">
+                  <span className="f-corm text-[#C9922A] text-xl mr-3">{String(i+1).padStart(2,"0")}</span>
+                  <span className="f-dm text-[.93rem] leading-relaxed text-[#2A1A1A] font-light">{p}</span>
                 </div>
               ))}
             </div>
           </div>
-
           {/* Solutions */}
-          <div data-aos="fade-left">
-            <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#C9922A] font-medium mb-4">
-              Our Solution
-            </p>
-            <h2 className="f-play font-bold text-3xl md:text-[2.5rem] text-[#4A0E0E] mb-9">
-              The Dezine Acharya Difference
-            </h2>
-            <div>
-              {[
-                {
-                  title: "Mentorship over Teaching",
-                  desc: "Personalized creative guidance that sees the individual behind the aspirant.",
-                  icon: "◎",
-                },
-                {
-                  title: "Think, Don't Rote",
-                  desc: "A curriculum built on design thinking, not repetitive practice drills.",
-                  icon: "◈",
-                },
-                {
-                  title: "Affordable & Flexible",
-                  desc: "Breaking the cycle of commercial exploitation in coaching.",
-                  icon: "◇",
-                },
-                {
-                  title: "Community-Driven",
-                  desc: "Peer feedback, shared growth, and continuous engagement across platforms.",
-                  icon: "◉",
-                },
-                {
-                  title: "Always Accessible",
-                  desc: "YouTube, Instagram & live communities — design education without walls.",
-                  icon: "◐",
-                },
-              ].map((item, i) => (
-                <div
-                  key={item.title}
-                  data-aos="fade-up"
-                  data-aos-delay={i * 80}
-                  className={`flex items-start gap-4 py-5 group hover:bg-[#FDFAF6] px-3 -mx-3 transition-colors duration-200 ${i < 4 ? "border-b border-[#f0e8e0]" : ""}`}
-                >
-                  <span className="text-[#C9922A] text-2xl shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200">
-                    {item.icon}
-                  </span>
-                  <div>
-                    <div className="f-dm font-semibold text-[.93rem] text-[#6B1A1A] mb-1">
-                      {item.title}
-                    </div>
-                    <div className="f-dm text-[.88rem] text-[#8A6A5A] leading-relaxed font-light">
-                      {item.desc}
-                    </div>
-                  </div>
+          <div data-aos="fade-left" data-aos-duration="800">
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">Our Solution</p>
+            <h2 className="f-play font-bold text-3xl md:text-[2.5rem] text-[#4A0E0E] mb-9">The Dezine Acharya Difference</h2>
+            {[
+              { icon:"◎", title:"Mentorship over Teaching",  desc:"Personalized creative guidance that sees the individual behind the aspirant." },
+              { icon:"◈", title:"Think, Don't Rote",         desc:"A curriculum built on design thinking, not repetitive practice drills." },
+              { icon:"◇", title:"Affordable & Flexible",     desc:"Breaking the cycle of commercial exploitation in coaching." },
+              { icon:"◉", title:"Community-Driven",          desc:"Peer feedback, shared growth, and continuous engagement across platforms." },
+              { icon:"◐", title:"Always Accessible",         desc:"YouTube, Instagram & live communities — design education without walls." },
+            ].map((s,i)=>(
+              <div key={s.title} data-aos="fade-up" data-aos-delay={i*80}
+                className={`sol-row flex items-start gap-4 py-5 px-3 -mx-3 ${i<4?"border-b border-[#f0e8e0]":""}`}>
+                <span className="sol-icon text-[#C9922A] text-2xl shrink-0 mt-0.5">{s.icon}</span>
+                <div>
+                  <div className="f-dm font-semibold text-[.93rem] text-[#6B1A1A] mb-1">{s.title}</div>
+                  <div className="f-dm text-[.88rem] text-[#8A6A5A] leading-relaxed font-light">{s.desc}</div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          MISSION
-      ══════════════════════════════════ */}
-      <section
-        id="approach"
-        className="bg-gradient-to-br from-[#4A0E0E] to-[#6B1A1A] py-24 px-6 md:px-10 relative overflow-hidden"
-      >
-        <div
-          className="absolute -top-24 -right-24 w-96 h-96 rounded-full border border-[#C9922A]/15 pointer-events-none float-anim"
-          style={{ animationDelay: "1s" }}
-        />
-        <div className="absolute -bottom-16 left-[10%] w-64 h-64 rounded-full border border-[#C9922A]/10 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-[#C9922A]/5 pointer-events-none" />
-
-        <div
-          data-aos="zoom-in"
-          className="max-w-[900px] mx-auto text-center relative"
-        >
-          <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#E8B84B] opacity-80 mb-5">
-            Our Mission
-          </p>
-          <h2 className="f-corm font-light italic text-4xl md:text-[3.2rem] text-white leading-relaxed mb-10">
-            "To guide one lakh design aspirants across India through a
-            human-centered, experience-driven learning model — where design is{" "}
-            <span className="text-[#E8B84B]">discovered</span>, not drilled."
-          </h2>
-          <div
-            data-aos="fade-up"
-            data-aos-delay="200"
-            className="flex justify-center gap-4 flex-wrap"
-          >
-            <a
-              href="https://www.instagram.com/dezine_acharya"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="f-dm text-[.82rem] tracking-[.15em] uppercase text-white border border-white/20 bg-white/10 px-8 py-3.5 hover:bg-white/20 transition-all duration-300 no-underline"
-            >
+      {/* ══════════ MISSION ══════════ */}
+      <section id="approach" className="py-24 px-6 md:px-10 relative overflow-hidden bg-gradient-to-br from-[#4A0E0E] to-[#6B1A1A]">
+        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full border border-[#C9922A]/12 pointer-events-none float-anim" style={{animationDelay:"1s"}}/>
+        <div className="absolute -bottom-16 left-[8%] w-64 h-64 rounded-full border border-[#C9922A]/8 pointer-events-none"/>
+        <div className="max-w-[900px] mx-auto text-center relative z-10" data-aos="zoom-in" data-aos-duration="900">
+          <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#E8B84B] opacity-85 mb-6">Our Mission</p>
+          <blockquote className="f-corm font-light italic text-4xl md:text-[3rem] text-white/90 leading-relaxed mb-12">
+            &ldquo;To guide one lakh design aspirants across India through a human-centered, experience-driven learning model — where design is{" "}
+            <em className="text-[#E8B84B] not-italic">discovered</em>, not drilled.&rdquo;
+          </blockquote>
+          <div className="flex justify-center gap-4 flex-wrap" data-aos="fade-up" data-aos-delay="200">
+            <a href="https://www.instagram.com/dezine_acharya" target="_blank" rel="noopener noreferrer"
+               className="f-dm text-[.8rem] tracking-[.15em] uppercase text-white border border-white/20 bg-white/10 px-8 py-3.5 hover:bg-white/20 transition-all duration-300 no-underline">
               Follow on Instagram
             </a>
-            <a
-              href="#contact"
-              className="f-dm text-[.82rem] tracking-[.15em] uppercase bg-[#C9922A] text-white px-8 py-3.5 hover:bg-[#E8B84B] hover:text-[#4A0E0E] transition-all duration-300 no-underline"
-            >
+            <a href="#contact"
+               className="f-dm text-[.8rem] tracking-[.15em] uppercase bg-[#C9922A] text-[#4A0E0E] font-semibold px-8 py-3.5 hover:bg-[#E8B84B] transition-all duration-300 no-underline">
               Join the Movement
             </a>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          TESTIMONIALS
-      ══════════════════════════════════ */}
-      <section id="community" className="bg-[#FDF6EC] py-24 px-6 md:px-10">
-        <div className="max-w-[1200px] mx-auto">
-          <div data-aos="fade-up" className="text-center mb-16">
-            <p className="f-dm text-[.75rem] tracking-[.3em] uppercase text-[#C9922A] font-medium mb-4">
-              Student Voices
-            </p>
-            <h2 className="f-play font-bold text-3xl md:text-[2.8rem] text-[#4A0E0E]">
-              What Our Aspirants Say
-            </h2>
+      {/* ══════════ PARENTS LETTER ══════════ */}
+      <section id="parents" className="py-24 px-6 md:px-10 bg-[#FDF6EC]">
+        <div className="text-center mb-14" data-aos="fade-up">
+          <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">A Message for Parents</p>
+          <h2 className="f-play font-bold text-4xl md:text-5xl text-[#4A0E0E]">Dear Parents,</h2>
+        </div>
+        <div className="max-w-[820px] mx-auto" data-aos="fade-up" data-aos-delay="150" data-aos-duration="900">
+          <div className="bg-white border border-[#f0e0d0] shadow-[0_8px_48px_rgba(0,0,0,.07)] px-8 md:px-16 py-12">
+            <div className="flex justify-between items-start mb-2">
+              <Image src="/logo-new.webp" alt="Dezine Acharya" width={120} height={52} className=" w-auto object-contain"/>
+              <span className="f-dm text-[.8rem] text-[#C9922A] tracking-wide">www.dezineacharya.com</span>
+            </div>
+            <hr className="letter-rule mb-9 mt-2"/>
+            <p className="f-dm text-[1rem] font-medium text-[#2A1A1A] mb-6">Dear Parents,</p>
+            <div className="space-y-5 f-dm text-[.95rem] leading-[1.95] text-[#2A1A1A] font-light">
+              <p>If your child aspires to build a career in <strong className="font-bold">Fashion, Design, or Architecture</strong>, choosing the right direction after school can often feel confusing and overwhelming.</p>
+              <p>At <strong className="font-bold">Dezine Acharya</strong>, we provide expert mentorship and career guidance for premier institutes such as <strong className="font-bold">NID, NIFT, UCEED, NATA</strong>, and leading architecture &amp; design colleges. Our approach goes beyond coaching — we help students discover their strengths, nurture creativity, and make confident career decisions aligned with their true potential.</p>
+              <p>We understand that every parent wants clarity, security, and the right future for their child. With <strong className="font-bold">personalised mentorship</strong> and <strong className="font-bold">professional guidance</strong>, we ensure students move forward with confidence, clarity, and purpose.</p>
+              <p>We warmly invite you to visit our <strong className="font-bold">Dwarka Centre</strong> for a personal consultation and experience our mentorship approach firsthand.</p>
+            </div>
+            <div className="mt-9 space-y-2 f-dm text-[.93rem] text-[#2A1A1A]">
+              <p>📍 Dwarka Centre, Delhi</p>
+              <p>📞 Call to schedule a consultation: <a href="tel:+918860615795" className="text-[#6B1A1A] font-bold hover:underline">8860615795</a></p>
+              <p>✉️ <a href="mailto:info@dezineacharya.com" className="text-[#6B1A1A] font-bold hover:underline">info@dezineacharya.com</a></p>
+            </div>
+            <hr className="letter-rule mt-10 mb-4"/>
+            <p className="f-dm text-[.78rem] text-[#8A6A5A] text-center">Plot No. 101, First Floor Above Levi&apos;s Showroom, Sector 7, Dwarka, Delhi - 110777</p>
           </div>
+        </div>
+      </section>
 
+      {/* ══════════ TESTIMONIALS ══════════ */}
+      <section id="community" className="py-24 px-6 md:px-10 bg-white">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="text-center mb-16" data-aos="fade-up">
+            <p className="f-dm text-[.72rem] tracking-[.32em] uppercase text-[#C9922A] font-medium mb-4">Student Voices</p>
+            <h2 className="f-play font-bold text-3xl md:text-[2.8rem] text-[#4A0E0E]">What Our Aspirants Say</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                name: "Aanya Sharma",
-                exam: "NID Aspirant",
-                text: "Dezine Acharya changed how I see design. It's not a coaching factory — it's a space where you actually learn to think.",
-              },
-              {
-                name: "Rohan Mehta",
-                exam: "UCEED Qualifier",
-                text: "The mentorship here is personal and real. They pushed my creative limits while making sure I stayed true to my own vision.",
-              },
-              {
-                name: "Priya Nair",
-                exam: "NIFT Aspirant",
-                text: "The community aspect is incredible. Getting peer feedback and learning together made the whole journey less lonely and more inspiring.",
-              },
-            ].map((t, i) => (
-              <div
-                key={t.name}
-                data-aos="fade-up"
-                data-aos-delay={i * 120}
-                className="qcard bg-white border border-[#f0e0d0] p-8 relative hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                <p className="f-corm italic text-[1.1rem] leading-relaxed text-[#2A1A1A] mt-10 mb-6">
-                  {t.text}
-                </p>
+              { name:"Aanya Sharma", exam:"NID Aspirant",    text:"Dezine Acharya changed how I see design. It's not a coaching factory — it's a space where you actually learn to think." },
+              { name:"Rohan Mehta",  exam:"UCEED Qualifier", text:"The mentorship here is personal and real. They pushed my creative limits while making sure I stayed true to my own vision." },
+              { name:"Priya Nair",   exam:"NIFT Aspirant",   text:"The community aspect is incredible. Getting peer feedback and learning together made the whole journey less lonely and more inspiring." },
+            ].map((t,i)=>(
+              <div key={t.name} data-aos="fade-up" data-aos-delay={i*120}
+                className="t-card relative bg-white border border-[#f0e0d0] p-8 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                <p className="f-corm italic text-[1.1rem] leading-relaxed text-[#2A1A1A] mt-10 mb-6">{t.text}</p>
                 <div className="border-t border-[#f0e0d0] pt-4 flex justify-between items-center">
-                  <span className="f-dm font-semibold text-[.88rem] text-[#6B1A1A]">
-                    {t.name}
-                  </span>
-                  <span className="f-dm text-[.72rem] tracking-[.15em] uppercase text-[#C9922A]">
-                    {t.exam}
-                  </span>
+                  <span className="f-dm font-semibold text-[.88rem] text-[#6B1A1A]">{t.name}</span>
+                  <span className="f-dm text-[.7rem] tracking-[.14em] uppercase text-[#C9922A]">{t.exam}</span>
                 </div>
               </div>
             ))}
@@ -646,164 +407,86 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          CTA
-      ══════════════════════════════════ */}
-      <section
-        id="contact"
-        className="py-24 px-6 md:px-10 bg-white text-center"
-      >
-        <div data-aos="fade-up" className="max-w-[680px] mx-auto">
-          <div className="divline">
+      {/* ══════════ CTA / CONTACT ══════════ */}
+      <section id="contact" className="py-24 px-6 md:px-10 bg-[#FDF6EC] text-center">
+        <div className="max-w-[700px] mx-auto" data-aos="fade-up">
+          <div className="flex items-center gap-4 justify-center mb-9">
+            <div className="flex-1 max-w-[120px] h-px bg-gradient-to-r from-transparent to-[#C9922A]"/>
             <span className="f-corm text-[#C9922A] text-2xl">◈</span>
+            <div className="flex-1 max-w-[120px] h-px bg-gradient-to-l from-transparent to-[#C9922A]"/>
           </div>
-          <h2 className="f-play font-bold text-4xl md:text-5xl text-[#4A0E0E] mb-5">
-            Ready to Begin Your Design Journey?
-          </h2>
-          <p className="f-dm text-[1rem] text-[#8A6A5A] leading-relaxed font-light mb-10">
+          <h2 className="f-play font-bold text-4xl md:text-5xl text-[#4A0E0E] mb-6">Ready to Begin Your Design Journey?</h2>
+          <p className="f-dm text-[.97rem] text-[#8A6A5A] leading-relaxed font-light mb-10">
             Join a growing community of design aspirants who believe in{" "}
-            <span className="text-[#6B1A1A] font-medium">
-              thinking over drilling
-            </span>
-            ,{" "}
-            <span className="text-[#6B1A1A] font-medium">
-              mentorship over marking
-            </span>
-            , and design as a genuinely transformative pursuit.
+            <span className="text-[#6B1A1A] font-medium">thinking over drilling</span>,{" "}
+            <span className="text-[#6B1A1A] font-medium">mentorship over marking</span>, and design as a genuinely transformative pursuit.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <a
-              href="#"
-              className="f-dm text-[.85rem] font-medium tracking-[.15em] uppercase bg-[#6B1A1A] text-white px-10 py-4 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 no-underline"
-            >
+          <div className="flex gap-4 justify-center flex-wrap mb-12" data-aos="fade-up" data-aos-delay="150">
+            <a href="https://wa.me/918860615795?text=Hello%20I%20want%20to%20know%20more%20about%20your%20services" target="_blank"
+               className="f-dm text-[.82rem] tracking-[.16em] uppercase bg-[#6B1A1A] text-white px-10 py-4 hover:bg-[#4A0E0E] hover:-translate-y-0.5 hover:shadow-xl transition-all duration-300 no-underline">
               Enroll Now
             </a>
-            <a
-              href="https://www.instagram.com/dezine_acharya"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="f-dm text-[.85rem] font-medium tracking-[.15em] uppercase border border-[#6B1A1A] text-[#6B1A1A] px-10 py-4 hover:bg-[#6B1A1A] hover:text-white transition-all duration-300 no-underline"
-            >
-              Follow Us
+            <a href="https://www.instagram.com/dezine_acharya" target="_blank" rel="noopener noreferrer"
+               className="f-dm text-[.82rem] tracking-[.16em] uppercase border border-[#6B1A1A] text-[#6B1A1A] px-10 py-4 hover:bg-[#6B1A1A] hover:text-white transition-all duration-300 no-underline">
+              Instagram
             </a>
+            <a href="https://www.youtube.com/@dezineacharya" target="_blank" rel="noopener noreferrer"
+               className="f-dm text-[.82rem] tracking-[.16em] uppercase border border-[#C9922A] text-[#C9922A] px-10 py-4 hover:bg-[#C9922A] hover:text-white transition-all duration-300 no-underline">
+              YouTube
+            </a>
+          </div>
+          <div className="bg-white border-l-[3px] border-[#C9922A] px-8 py-6 text-left max-w-[420px] mx-auto space-y-2" data-aos="fade-up" data-aos-delay="250">
+            <a href="tel:+918860615795" className="block f-dm text-[.93rem] text-[#6B1A1A] font-semibold hover:underline">📞 8860615795</a>
+            <a href="mailto:info@dezineacharya.com" className="block f-dm text-[.93rem] text-[#6B1A1A] font-semibold hover:underline">✉️ info@dezineacharya.com</a>
+            <span className="block f-dm text-[.88rem] text-[#8A6A5A] font-light">📍 Plot No. 101, First Floor Above Levi&apos;s Showroom, Sector 7, Dwarka, Delhi - 110777</span>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════
-          FOOTER  (improved readability)
-      ══════════════════════════════════ */}
+      {/* ══════════ FOOTER ══════════ */}
       <footer className="bg-[#3A0A0A] text-white pt-16 pb-8 px-6 md:px-10">
         <div className="max-w-[1200px] mx-auto">
-          {/* Top divider accent */}
-          <div className="shimmer-bar h-[2px] w-full mb-14 opacity-60" />
-
+          <div className="shimmer-bar h-[2px] w-full rounded-full mb-14 opacity-60"/>
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-12 md:gap-16 mb-14">
             {/* Brand */}
             <div data-aos="fade-up" data-aos-delay="0">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="f-play font-black text-[1.4rem] text-white">
-                  DEZINE
-                </span>
-                <span className="w-px h-5 bg-[#C9922A] opacity-60" />
-                <span className="f-corm text-[1rem] text-[#C9922A] tracking-[.15em]">
-                  Acharya
-                </span>
-              </div>
-              <p className="f-dm text-[.9rem] leading-[1.9] text-white/75 font-light max-w-[300px] mb-6">
-                An experiential learning platform mentoring students for NID,
-                NIFT, and UCEED — where design is discovered, not drilled.
+              <Image src="/logo-new.webp" alt="Dezine Acharya" width={140} height={44} className="w-[100px] w-auto object-contain mb-5 brightness-0 invert opacity-90"/>
+              <p className="f-dm text-[.88rem] leading-[1.9] text-white/65 font-light max-w-[290px] mb-6">
+                An experiential learning platform mentoring students for NID, NIFT, UCEED &amp; NATA — where design is discovered, not drilled.
               </p>
-              {/* Social chips */}
               <div className="flex gap-3 flex-wrap">
-                <a
-                  href="https://www.instagram.com/dezine_acharya"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="f-dm text-[.72rem] tracking-[.12em] uppercase border border-[#C9922A]/50 text-[#C9922A] px-4 py-2 hover:bg-[#C9922A] hover:text-white hover:border-[#C9922A] transition-all duration-300 no-underline"
-                >
-                  Instagram
-                </a>
-                <a
-                  href="https://wa.me/12345678"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="f-dm text-[.72rem] tracking-[.12em] uppercase border border-[#25D366]/50 text-[#25D366] px-4 py-2 hover:bg-[#25D366] hover:text-white transition-all duration-300 no-underline"
-                >
-                  WhatsApp
-                </a>
-                <a
-                  href="#"
-                  className="f-dm text-[.72rem] tracking-[.12em] uppercase border border-white/20 text-white/60 px-4 py-2 hover:border-white/50 hover:text-white transition-all duration-300 no-underline"
-                >
-                  YouTube
-                </a>
+                <a href="https://www.instagram.com/dezine_acharya" target="_blank" rel="noopener noreferrer"
+                   className="f-dm text-[.7rem] tracking-[.12em] uppercase border border-[#C9922A]/50 text-[#C9922A] px-4 py-2 hover:bg-[#C9922A] hover:text-white transition-all duration-300 no-underline">Instagram</a>
+                <a href="https://wa.me/918860615795" target="_blank" rel="noopener noreferrer"
+                   className="f-dm text-[.7rem] tracking-[.12em] uppercase border border-[#25D366]/45 text-[#25D366] px-4 py-2 hover:bg-[#25D366] hover:text-white transition-all duration-300 no-underline">WhatsApp</a>
+                <a href="https://www.youtube.com/@dezineacharya" target="_blank" rel="noopener noreferrer"
+                   className="f-dm text-[.7rem] tracking-[.12em] uppercase border border-white/20 text-white/60 px-4 py-2 hover:border-white/50 hover:text-white transition-all duration-300 no-underline">YouTube</a>
               </div>
             </div>
-
             {/* Exams */}
             <div data-aos="fade-up" data-aos-delay="100">
-              <p className="f-dm text-[.72rem] tracking-[.28em] uppercase text-[#C9922A] mb-6 pb-3 border-b border-[#C9922A]/20">
-                Exams
-              </p>
-              {[
-                "NID Preparation",
-                "NIFT Preparation",
-                "UCEED Preparation",
-                "Design Fundamentals",
-              ].map((link) => (
-                <div key={link} className="mb-4 flex items-center gap-2 group">
-                  <span className="w-1 h-1 rounded-full bg-[#C9922A] opacity-60 group-hover:opacity-100 transition-opacity" />
-                  <a
-                    href="#"
-                    className="f-dm text-[.88rem] text-white/70 font-light no-underline hover:text-white transition-colors duration-200"
-                  >
-                    {link}
-                  </a>
-                </div>
+              <p className="f-dm text-[.7rem] tracking-[.28em] uppercase text-[#C9922A] mb-6 pb-3 border-b border-[#C9922A]/18">Exams</p>
+              {["NID Preparation","NIFT Preparation","UCEED Preparation","NATA Preparation"].map(l=>(
+                <a key={l} href="#exams" className="ft-link f-dm text-[.87rem] text-white/65 font-light no-underline hover:text-white transition-colors duration-200 mb-4 block">{l}</a>
               ))}
             </div>
-
             {/* Connect */}
             <div data-aos="fade-up" data-aos-delay="200">
-              <p className="f-dm text-[.72rem] tracking-[.28em] uppercase text-[#C9922A] mb-6 pb-3 border-b border-[#C9922A]/20">
-                Connect
-              </p>
+              <p className="f-dm text-[.7rem] tracking-[.28em] uppercase text-[#C9922A] mb-6 pb-3 border-b border-[#C9922A]/18">Connect</p>
               {[
-                {
-                  label: "Instagram",
-                  href: "https://www.instagram.com/dezine_acharya",
-                },
-                { label: "YouTube", href: "#" },
-                { label: "Community", href: "#" },
-                { label: "Contact Us", href: "#" },
-              ].map((link) => (
-                <div
-                  key={link.label}
-                  className="mb-4 flex items-center gap-2 group"
-                >
-                  <span className="w-1 h-1 rounded-full bg-[#C9922A] opacity-60 group-hover:opacity-100 transition-opacity" />
-                  <a
-                    href={link.href}
-                    target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel="noopener noreferrer"
-                    className="f-dm text-[.88rem] text-white/70 font-light no-underline hover:text-white transition-colors duration-200"
-                  >
-                    {link.label}
-                  </a>
-                </div>
+                { label:"Instagram",  href:"https://www.instagram.com/dezine_acharya" },
+                { label:"YouTube",    href:"https://www.youtube.com/@dezineacharya" },
+                { label:"For Parents",href:"#parents" },
+                { label:"Contact Us", href:"#contact" },
+              ].map(l=>(
+                <a key={l.label} href={l.href} target={l.href.startsWith("http")?"_blank":undefined} rel="noopener noreferrer"
+                   className="ft-link f-dm text-[.87rem] text-white/65 font-light no-underline hover:text-white transition-colors duration-200 mb-4 block">{l.label}</a>
               ))}
             </div>
           </div>
-
-          {/* Bottom bar */}
           <div className="border-t border-white/10 pt-6 flex flex-wrap justify-between items-center gap-3">
-            <span className="f-dm text-[.78rem] text-white/50 font-light">
-              © 2024 Dezine Acharya. All rights reserved.
-            </span>
-            <span className="f-corm italic text-[.95rem] text-[#C9922A] opacity-80">
-              Design is discovered, not drilled.
-            </span>
+            <span className="f-dm text-[.76rem] text-white/45 font-light">© 2025 Dezine Acharya. All rights reserved.</span>
+            <span className="f-corm italic text-[.95rem] text-[#C9922A] opacity-80">Design is discovered, not drilled.</span>
           </div>
         </div>
       </footer>
