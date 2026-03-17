@@ -4,7 +4,7 @@ import { Mail, MapPin, Phone, Sparkles, Users } from "lucide-react";
 export function TeamSection() {
   return (
     <section id="team" className="bg-white px-3 py-20 md:px-10 md:py-24">
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1400px]">
         <div className="mb-16 text-center" data-aos="fade-up">
           <p className="f-dm mb-4 text-[.72rem] font-medium tracking-[.32em] text-[#C9922A] uppercase">
             The Minds Behind
@@ -51,13 +51,21 @@ export function TeamSection() {
                 <strong className="font-semibold text-white/90">
                   National Institute of Design (NID)
                 </strong>
-                , Amit brings over{" "}
+                , Amit brings{" "}
                 <strong className="font-semibold text-white/90">
-                  12+ years
+                  24 years of experience
+                </strong>
+                :{" "}
+                <strong className="font-semibold text-white/90">
+                  12 years as a professional designer
                 </strong>{" "}
-                of design mentoring experience. His philosophy-driven approach
-                has transformed how hundreds of students perceive creativity,
-                from exam panic to genuine design vision.
+                and{" "}
+                <strong className="font-semibold text-white/90">
+                  12 years as a design educator
+                </strong>
+                . His philosophy-driven approach has transformed how hundreds
+                of students perceive creativity, from exam panic to genuine
+                design vision.
               </p>
               <p className="f-dm mb-8 text-[.93rem] leading-[1.9] font-light text-white/70">
                 At Dezine Acharya, Amit leads with purpose, building not just a
@@ -70,7 +78,9 @@ export function TeamSection() {
               <div className="flex flex-wrap gap-2">
                 {[
                   "NID Alumnus",
-                  "12+ Yrs Mentoring",
+                  "24 Yrs Experience",
+                  "12 Yrs Industry",
+                  "12 Yrs Educator",
                   "Philosophy-Driven",
                   "All Design Exams",
                 ].map((tag) => (
@@ -86,31 +96,43 @@ export function TeamSection() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
           {[
             {
-              name: "Priya Verma",
-              role: "Fashion & NIFT Specialist",
-              stream: "Fashion",
-              exp: "8+ Yrs",
-              tags: ["NIFT", "Fashion Theory", "Styling"],
-              bio: "Former NIFT faculty with a deep understanding of fashion communication, portfolio building and CAT exam strategy.",
-            },
-            {
-              name: "Rahul Kapoor",
-              role: "Architecture & NATA Expert",
-              stream: "Architecture",
-              exp: "10+ Yrs",
-              tags: ["NATA", "JEE B.Arch", "Freehand Drawing"],
-              bio: "Trained architect with extensive experience coaching spatial design, freehand drawing, and architecture aptitude.",
-            },
-            {
-              name: "Sneha Joshi",
-              role: "Design Thinking Mentor",
+              name: "Sudarshan R. Chetlur",
+              role: "Brand Strategy & Design Thinking",
               stream: "Design",
-              exp: "7+ Yrs",
-              tags: ["UCEED", "CEED", "Visualization"],
-              bio: "Specialist in UCEED and CEED preparation, focuses on analytical reasoning, visualization, and creative problem-solving.",
+              exp: "30+ Yrs",
+              image: "/images/team/member-1.webp", // ← replace with your image path
+              tags: ["Brand Strategy", "Design Thinking", "Graphic Design"],
+              bio: "CEO of SCDS Global Branding, visiting faculty at Sushant School of Art & Architecture, celebrated drummer, painter, filmmaker, and creative mentor with nearly three decades of experience.",
+            },
+            {
+              name: "Sachin Garg",
+              role: "Fashion Design & Brand Management",
+              stream: "Fashion",
+              exp: "20+ Yrs",
+              image: "/images/team/member-2.webp", // ← replace with your image path
+              tags: ["NIFT", "Range Planning", "Brand Management"],
+              bio: "Top management creative professional with experience at JJ Valaya, Satyapaul, BIBA, Reliance Trends & Arvind Brands. Expert in women's and kids wear, trend forecasting, and B2B/B2C brand strategy.",
+            },
+            {
+              name: "Supriya Kamboj",
+              role: "UX Research & Design Identity",
+              stream: "Design",
+              exp: "Emerging",
+              image: "/images/team/member-3.webp", // ← replace with your image path
+              tags: ["UX Research", "Service Design", "Brand Identity"],
+              bio: "Design Management student at MIT ADT Pune. Former UX Researcher at IIT Delhi and Design Identity Curator, bridging visual thinking with business sensibility.",
+            },
+            {
+              name: "Pushpa Sharma",
+              role: "Design Education & Portfolio Mentoring",
+              stream: "Education",
+              exp: "Senior",
+              image: "/images/team/member-4.jpg", // ← replace with your image path
+              tags: ["Portfolio Mentoring", "SCAD", "FIT", "Study Abroad"],
+              bio: "Design education leader and National Head at World University of Design, Mody University & DSK International Campus. Mentors students for global design universities including SCAD and FIT.",
             },
           ].map((member, index) => (
             <div
@@ -119,28 +141,44 @@ export function TeamSection() {
               data-aos-delay={index * 100}
               className="team-card overflow-hidden border border-[#f0e0d0] bg-white"
             >
-              <div className="team-avatar relative flex h-[160px] items-end justify-center overflow-hidden">
+              <div className="team-avatar relative flex h-[200px] items-end justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FDF6EC] to-[#f5e6d0]" />
                 <div className="absolute top-4 right-4">
                   <span className="f-dm border border-[#C9922A]/50 bg-white/70 px-3 py-1 text-[.6rem] tracking-[.14em] text-[#6B1A1A] uppercase">
                     {member.stream}
                   </span>
                 </div>
-                <div className="relative z-10 mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#C9922A]/30 bg-[#6B1A1A]/10">
-                  <Users
-                    size={36}
-                    strokeWidth={1.4}
-                    className="text-[#6B1A1A]/40"
+
+                {/* ── Team member photo ── */}
+                {member.image ? (
+                  <Image
+                    width={200}
+                    height={200}
+                    src={member.image}
+                    alt={member.name}
+                    className="absolute inset-0 h-full w-full object-cover object-top"
                   />
-                </div>
+                ) : (
+                  <div className="relative z-10 mb-4 flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#C9922A]/30 bg-[#6B1A1A]/10">
+                    <Users
+                      size={36}
+                      strokeWidth={1.4}
+                      className="text-[#6B1A1A]/40"
+                    />
+                  </div>
+                )}
+
+                {/* overlay so badge stays readable over photo */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
               </div>
+
               <div className="p-7">
                 <div className="mb-3 flex items-start justify-between">
                   <div>
-                    <h4 className="f-play text-[1.2rem] font-bold text-[#4A0E0E]">
+                    <h4 className="f-play text-[1.1rem] font-bold text-[#4A0E0E] leading-tight">
                       {member.name}
                     </h4>
-                    <p className="f-corm text-[1rem] italic text-[#C9922A]">
+                    <p className="f-corm text-[.95rem] italic text-[#C9922A] mt-0.5">
                       {member.role}
                     </p>
                   </div>
@@ -148,7 +186,7 @@ export function TeamSection() {
                     {member.exp}
                   </span>
                 </div>
-                <p className="f-dm mb-5 text-[.88rem] leading-relaxed font-light text-[#8A6A5A]">
+                <p className="f-dm mb-5 text-[.85rem] leading-relaxed font-light text-[#8A6A5A]">
                   {member.bio}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -215,8 +253,8 @@ export function ParentsSection() {
               not a large coaching franchise with mass batches and inflated
               fees. We are a{" "}
               <strong className="font-bold">team of dedicated mentors</strong>,
-              each expert in their stream, providing guided, personalised
-              career support for premier institutes such as{" "}
+              each expert in their stream, providing guided, personalised career
+              support for premier institutes such as{" "}
               <strong className="font-bold">
                 NID, NIFT, UCEED, NATA, CEED
               </strong>{" "}
@@ -225,10 +263,12 @@ export function ParentsSection() {
             <p>
               Unlike the coaching giants in the JEE/NEET space that prioritize
               volume over value, our approach is grounded in{" "}
-              <strong className="font-bold">one-on-one creative guidance</strong>.
-              We help students discover their strengths, develop their creative
-              voice, and make confident career decisions aligned with their true
-              potential, not just exam scores.
+              <strong className="font-bold">
+                one-on-one creative guidance
+              </strong>
+              . We help students discover their strengths, develop their
+              creative voice, and make confident career decisions aligned with
+              their true potential, not just exam scores.
             </p>
             <p>
               We understand that every parent wants clarity, security, and the
@@ -363,9 +403,14 @@ export function ContactSection() {
         </h2>
         <p className="f-dm mb-10 text-[.97rem] leading-relaxed font-light text-[#8A6A5A]">
           Join a growing community of design aspirants who believe in{" "}
-          <span className="font-medium text-[#6B1A1A]">thinking over drilling</span>,{" "}
-          <span className="font-medium text-[#6B1A1A]">mentorship over marking</span>,
-          and design as a genuinely transformative pursuit. Our team is ready
+          <span className="font-medium text-[#6B1A1A]">
+            thinking over drilling
+          </span>
+          ,{" "}
+          <span className="font-medium text-[#6B1A1A]">
+            mentorship over marking
+          </span>
+          , and design as a genuinely transformative pursuit. Our team is ready
           to guide you.
         </p>
         <div
@@ -407,7 +452,10 @@ export function ContactSection() {
             <span className="contact-ic">
               <Phone size={14} />
             </span>
-            <a href="tel:+918860615795" className="contact-link f-dm text-[.93rem]">
+            <a
+              href="tel:+918860615795"
+              className="contact-link f-dm text-[.93rem]"
+            >
               8860615795
             </a>
           </div>
@@ -436,3 +484,5 @@ export function ContactSection() {
     </section>
   );
 }
+
+
