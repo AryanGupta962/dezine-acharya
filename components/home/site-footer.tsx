@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div className="shimmer-bar mb-14 h-[2px] w-full rounded-full opacity-60" />
         <div className="mb-14 grid grid-cols-1 gap-12 md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-10">
           <div data-aos="fade-up">
-            <div className="bg-linear-to-r w-full rounded from-white to-white/20 p-2">
+            <div className="bg-linear-to-r w-full from-white via-white/40 to-white/5 p-2">
               <Image
                 src="/logo-new.webp"
                 alt="Dezine Acharya"
