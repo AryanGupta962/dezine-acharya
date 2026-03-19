@@ -62,7 +62,7 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: "https://www.dezineacharya.com/images/logo-new.webp", // ✅ FULL URL FIX
+        url: "https://www.dezineacharya.com/logo-new.webp", // ✅ FULL URL FIX
         width: 1200,
         height: 630,
         alt: "Dezine Acharya",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     title: "Dezine Acharya - Design Education Redefined",
     description:
       "Mentoring aspirants for NID, NIFT, UCEED & NATA through creative intuition and mentorship.",
-    images: ["https://www.dezineacharya.com/images/logo-new.webp"], // ✅ FULL URL
+    images: ["https://www.dezineacharya.com/logo-new.webp"], // ✅ FULL URL
   },
 
   // ✅ FAVICONS FIXED
