@@ -36,14 +36,25 @@ export function TeamSection() {
                 </span>
               </div>
             </div>
-            <div className="flex flex-col justify-center p-5 md:p-12">
-              <p className="f-dm mb-4 text-[.68rem] tracking-[.3em] text-[#C9922A] uppercase opacity-80">
-                Founder &amp; Lead Mentor
-              </p>
-              <h3 className="f-play mb-1 text-[2.2rem] font-bold text-white">
-                Amit Singh
-              </h3>
-              <p className="f-corm mb-6 text-[2rem] italic text-[#C9922A]">
+            <div className="flex flex-col justify-center p-4 md:p-12">
+              <div className="flex items-center gap-2">
+                <Image
+                  src={"/images/owner.jpeg"}
+                  alt="Amit Singh"
+                  height={60}
+                  width={60}
+                  className="rounded-full h-17 w-17 object-cover object-top"
+                />
+                <div className="">
+                  <p className="f-dm text-[.68rem] tracking-[.3em] text-[#C9922A] uppercase opacity-80">
+                    Founder &amp; Lead Mentor
+                  </p>
+                  <h3 className="f-play mb-1 text-[2.2rem] font-bold text-white leading-tight">
+                    Amit Singh
+                  </h3>
+                </div>
+              </div>
+              <p className="f-corm mb-4 text-[1.5rem] mt-2 md:text-[2rem] italic text-[#C9922A]">
                 The Modern Dronacharya for Design Thinkers
               </p>
               <p className="f-dm mb-5 text-[.93rem] leading-[1.9] font-light text-white/70">
@@ -63,9 +74,9 @@ export function TeamSection() {
                 <strong className="font-semibold text-white/90">
                   12 years as a design educator
                 </strong>
-                . His philosophy-driven approach has transformed how hundreds
-                of students perceive creativity, from exam panic to genuine
-                design vision.
+                . His philosophy-driven approach has transformed how hundreds of
+                students perceive creativity, from exam panic to genuine design
+                vision.
               </p>
               <p className="f-dm mb-8 text-[.93rem] leading-[1.9] font-light text-white/70">
                 At Dezine Acharya, Amit leads with purpose, building not just a
@@ -484,5 +495,3 @@ export function ContactSection() {
     </section>
   );
 }
-
-
